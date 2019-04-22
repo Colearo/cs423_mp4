@@ -56,8 +56,9 @@ static int mp4_cred_alloc_blank(struct cred *cred, gfp_t gfp)
 	 * Add your code here
 	 * ...
 	 */
-    	cred->security = kzalloc(sizeof(struct mp4_security), gfp);
-	cred->security->mp4_flags = MP4_NO_ACCESS;
+    	struct mp4_security *ctx = kzalloc(sizeof(struct mp4_security), gfp);
+	ctx->mp4_flags = MP4_NO_ACCESS;
+    	cred->security = ctx;
 	return 0;
 }
 
