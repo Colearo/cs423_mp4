@@ -189,6 +189,7 @@ static __init int mp4_init(void)
 		return 0;
 
 	pr_info("mp4 LSM initializing..");
+	mp4_init_msg();
 
 	/*
 	 * Register the mp4 hooks with lsm

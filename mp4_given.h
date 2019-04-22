@@ -99,6 +99,14 @@ static inline int mp4_should_skip_path(const char *dir)
 	return 0;
 }
 
+#ifdef CONFIG_SECURITY_MP4_LSM
+static void mp4_init_msg(void) 
+{
+    printk(KERN_ALERT "MP4 Initialized\n");
+}
+#else 
+static void mp4_init_msg(void) {}
+#endif
 
 /* NOTE: operation masks can be found in linux/fs.h */
 
