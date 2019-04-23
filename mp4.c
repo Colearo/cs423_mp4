@@ -40,6 +40,70 @@ static int mp4_bprm_set_creds(struct linux_binprm *bprm)
 	 * Add your code here
 	 * ...
 	 */
+
+    	// Get the dentry of the binary file for the new process
+	struct dentry *de = bprm->file.f_path->dentry;
+	// Get the inode
+	struct inode *in = bprm->file->f_inode;
+	// Credential context - the extended attribute value
+	char * cred_ctx;
+	struct cred* cur_cred;
+	int ret, len, sid;
+
+	// Assign the default length of the xattr value for security.mp4
+	len = XATTR_NAME_MP4_LEN;
+	// Allocate a certain buffer
+	cred_ctx = kmalloc(len, GFP_NOFS);
+	if (!cred_ctx) {
+	    return -ENOMEM;
+	}
+	// Clean the momory 
+	memset(cred_ctx, 0, len);
+	// Get the extended attribute of namespace in XATTR_NAME_MP4
+	ret = in->i_op->getxattr(de, XATTR_NAME_MP4, cred_ctx, len);
+
+	// If the length of current label out of range
+	if (ret == -ERANGE) {
+	    kfree(context);
+	    // We need a larger buffer, query it
+	    ret = in->i_op->getxattr(de, XATTR_NAME_MP4, NULL, 0);
+	    if (ret < 0) {
+		dput(de);
+		pr_err("Query the correct size of xattr failed")
+		return ret;
+	    }
+
+	    len = ret;
+	    cred_ctx = kmalloc(len + 1, GFP_NOFS);
+	    if (!cred_ctx) {
+		dput(de);
+		return -ENOMEM;
+	    }
+	    cred_ctx[len] = 0;
+	    // Get the xattr again with right size
+	    ret = in->i_op->getxattr(de, XATTR_NAME_MP4, cred_ctx, len);
+	}
+
+	dput(de);
+
+	if (ret < 0) {
+	    // If there is this label but some errors exists
+	    // just return
+	    if (ret != -ENODATA) {
+		pr_err("Get the xattr failed");
+		kfree(cred_ctx);
+		return ret;
+	    }
+	    ret = 0;
+	} else {
+	    sid = __cred_ctx_to_sid(cred_ctx);
+	    if (sid == MP4_TARGET_SID) {
+		cur_cred = current_cred();
+		(struct mp4_security *)(cur_cred->security)->mp4_flags = sid;
+	    }
+	    (struct mp4_security *)(bprm->cred->security)->mp4_flags = sid;
+	}
+	kfree(cred_ctx)
 	return 0;
 }
 
