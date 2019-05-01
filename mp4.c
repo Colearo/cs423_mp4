@@ -171,7 +171,6 @@ static void mp4_cred_free(struct cred *cred)
 	 * Add your code here
 	 * ...
 	 */
-    	cred->security = NULL;
     	kfree(cred->security);
 }
 
