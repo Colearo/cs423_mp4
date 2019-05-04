@@ -236,7 +236,7 @@ static int mp4_inode_init_security(struct inode *inode, struct inode *dir,
 	// If the memory name pointing to is not NULL, assign it the xattr
 	// name
 	if (name) {
-	    *name = kstrndup(XATTR_NAME_MP4, XATTR_NAME_MP4_LEN, GFP_NOFS);
+	    *name = kstrndup(XATTR_MP4_SUFFIX, XATTR_NAME_MP4_LEN, GFP_NOFS);
 	    if (!*name)
 		return -ENOMEM;
 	}
