@@ -295,7 +295,7 @@ static int mp4_has_permission(int ssid, int osid, int mask)
 		    goto PERMIT;
 	    // May only be read by anyone
 	    case MP4_READ_OBJ:
-		if (mask & (MAY_READ) == mask)
+		if ((mask & (MAY_READ)) == mask)
 		    goto PERMIT;
 		else 
 		    goto DENY;
@@ -303,12 +303,12 @@ static int mp4_has_permission(int ssid, int osid, int mask)
 	    // and read by others
 	    case MP4_READ_WRITE:
 		if (ssid == MP4_TARGET_SID)
-		    if (mask & (MAY_READ | MAY_WRITE | MAY_APPEND) == mask)
+		    if ((mask & (MAY_READ | MAY_WRITE | MAY_APPEND)) == mask)
 			goto PERMIT;
 		    else
 			goto DENY;
 		else 
-		    if (mask & (MAY_READ) == mask)
+		    if ((mask & (MAY_READ)) == mask)
 			goto PERMIT;
 		    else 
 			goto DENY;
@@ -316,25 +316,25 @@ static int mp4_has_permission(int ssid, int osid, int mask)
 	    // and only read by others
 	    case MP4_WRITE_OBJ:
 		if (ssid == MP4_TARGET_SID)
-		    if (mask & (MAY_WRITE | MAY_APPEND) == mask)
+		    if ((mask & (MAY_WRITE | MAY_APPEND)) == mask)
 			goto PERMIT;
 		    else 
 			goto DENY;
 		else
-		    if (mask & (MAY_READ) == mask)
+		    if ((mask & (MAY_READ)) == mask)
 			goto PERMIT;
 		    else 
 			goto DENY;
 	    // May be read/executed by all
 	    case MP4_EXEC_OBJ:
-		if (mask & (MAY_READ | MAY_EXEC) == mask)
+		if ((mask & (MAY_READ | MAY_EXEC)) == mask)
 		    goto PERMIT;
 		else
 		    goto DENY;
 	    // May be read/exec/access by all
 	    case MP4_READ_DIR:
 		if (ssid == MP4_TARGET_SID)
-		    if (mask & (MAY_READ | MAY_EXEC | MAY_ACCESS) == mask)
+		    if ((mask & (MAY_READ | MAY_EXEC | MAY_ACCESS)) == mask)
 			goto PERMIT;
 		    else 
 			goto DENY;
@@ -343,7 +343,7 @@ static int mp4_has_permission(int ssid, int osid, int mask)
 	    // May be read/access by all
 	    case MP4_RW_DIR:
 		if (ssid == MP4_TARGET_SID)
-		    if (mask & (MAY_READ | MAY_ACCESS) == mask)
+		    if ((mask & (MAY_READ | MAY_ACCESS)) == mask)
 			goto PERMIT;
 		    else 
 			goto DENY;
