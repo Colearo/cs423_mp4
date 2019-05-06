@@ -281,7 +281,7 @@ static int mp4_has_permission(int ssid, int osid, int mask)
     	
     	// If there are no masks about the MAY_READ/MAY_WRITE/MAY_ACCESS/MAY_EXEC
 	// pass the permission control to the Linux default access control
-	mask &= (MAY_READ|MAY_WRITE|MAY_ACCESS|MAY_EXEC);
+	mask &= (MAY_READ|MAY_WRITE|MAY_APPEND|MAY_ACCESS|MAY_EXEC);
 	if (!mask)
 	    return 0;
     	
