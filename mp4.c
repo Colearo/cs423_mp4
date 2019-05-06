@@ -90,7 +90,7 @@ static int get_inode_sid(struct inode *inode)
 	    }
 
 	} else {
-	    pr_info("cred_ctx: %s\n", cred_ctx);
+	    /*pr_info("cred_ctx: %s\n", cred_ctx);*/
 	    sid = __cred_ctx_to_sid(cred_ctx);
 	    ret = sid;
 	}
@@ -186,7 +186,9 @@ static int mp4_cred_prepare(struct cred *new, const struct cred *old,
 			    gfp_t gfp)
 {
     	struct mp4_security *ctx = old->security, *new_ctx;
+	// Create the security field for new
 	mp4_cred_alloc_blank(new, gfp);
+	// If old credential has security context
 	if (ctx) {
 	    new_ctx = new->security;
 	    new_ctx->mp4_flags = ctx->mp4_flags;
@@ -248,7 +250,7 @@ static int mp4_inode_init_security(struct inode *inode, struct inode *dir,
 		return -ENOMEM;
 
 	    if (S_ISDIR(inode->i_mode))
-		size = sprintf(xattr_value, "dir-write");
+		size = sprintf(xattr_value, "dir");
 	    else 
 		size = sprintf(xattr_value, "read-write");
 
@@ -278,61 +280,73 @@ static int mp4_has_permission(int ssid, int osid, int mask)
 	 */
     	
     	// If there are no masks about the MAY_READ/MAY_WRITE/MAY_ACCESS/MAY_EXEC
-	// pass the permission control to the Linux default
-	if (!(mask & MAY_READ || mask & MAY_WRITE || mask & MAY_EXEC || mask & MAY_ACCESS)) {
+	// pass the permission control to the Linux default access control
+	mask &= (MAY_READ|MAY_WRITE|MAY_ACCESS|MAY_EXEC);
+	if (!mask)
 	    return 0;
-	}
     	
     	switch(osid) {
 	    // May not be accessed by target, but may be any others
+	    // So if the ssid is target, just deny
 	    case MP4_NO_ACCESS:
 		if (ssid == MP4_TARGET_SID)
 		    goto DENY;
 		else 
 		    goto PERMIT;
+	    // May only be read by anyone
 	    case MP4_READ_OBJ:
-		if (mask & MAY_READ)
+		if (mask & (MAY_READ) == mask)
 		    goto PERMIT;
 		else 
 		    goto DENY;
+	    // May be read/write/append by target 
+	    // and read by others
 	    case MP4_READ_WRITE:
 		if (ssid == MP4_TARGET_SID)
-		    if (mask & MAY_READ || mask & MAY_WRITE || mask & MAY_APPEND)
+		    if (mask & (MAY_READ | MAY_WRITE | MAY_APPEND) == mask)
 			goto PERMIT;
 		    else
 			goto DENY;
 		else 
-		    if (mask & MAY_READ) 
+		    if (mask & (MAY_READ) == mask)
 			goto PERMIT;
 		    else 
 			goto DENY;
+	    // May be written/appended by target
+	    // and only read by others
 	    case MP4_WRITE_OBJ:
 		if (ssid == MP4_TARGET_SID)
-		    if (mask & MAY_WRITE || mask & MAY_APPEND)
+		    if (mask & (MAY_WRITE | MAY_APPEND) == mask)
 			goto PERMIT;
 		    else 
 			goto DENY;
 		else
-		    if (mask & MAY_READ)
+		    if (mask & (MAY_READ) == mask)
 			goto PERMIT;
 		    else 
 			goto DENY;
+	    // May be read/executed by all
 	    case MP4_EXEC_OBJ:
-		if (mask & MAY_READ || mask & MAY_EXEC)
+		if (mask & (MAY_READ | MAY_EXEC) == mask)
 		    goto PERMIT;
 		else
 		    goto DENY;
+	    // May be read/exec/access by all
 	    case MP4_READ_DIR:
 		if (ssid == MP4_TARGET_SID)
-		    if (mask & MAY_READ || mask & MAY_EXEC || mask & MAY_ACCESS)
+		    if (mask & (MAY_READ | MAY_EXEC | MAY_ACCESS) == mask)
 			goto PERMIT;
 		    else 
 			goto DENY;
 		else 
 		    goto PERMIT;
+	    // May be read/access by all
 	    case MP4_RW_DIR:
 		if (ssid == MP4_TARGET_SID)
-		    goto PERMIT;
+		    if (mask & (MAY_READ | MAY_ACCESS) == mask)
+			goto PERMIT;
+		    else 
+			goto DENY;
 		else 
 		    goto PERMIT;
 	}
@@ -368,6 +382,7 @@ static int mp4_inode_permission(struct inode *inode, int mask)
     	if (!inode)
 	    return 0;
 
+	// Find the dentry from inode
 	de = d_find_alias(inode);
 	if (!de)
 	    return 0;
@@ -378,6 +393,7 @@ static int mp4_inode_permission(struct inode *inode, int mask)
 	    return 0;
 	}
 
+	// Get the dentry corresponding path
 	res = dentry_path_raw(de, buf, PATH_LEN);
 	if (IS_ERR(res)) {
 	    pr_err("%s, could not find path\n", __func__);
