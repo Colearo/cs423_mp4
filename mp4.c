@@ -249,8 +249,10 @@ static int mp4_inode_init_security(struct inode *inode, struct inode *dir,
 	    if (!xattr_value)
 		return -ENOMEM;
 
+	    // If the inode is directory, assign its directory R/W 
 	    if (S_ISDIR(inode->i_mode))
-		size = sprintf(xattr_value, "dir");
+		size = sprintf(xattr_value, "dir-write");
+	    // Else we want to assign the read-write to the normal file
 	    else 
 		size = sprintf(xattr_value, "read-write");
 
