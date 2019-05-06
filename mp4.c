@@ -283,7 +283,7 @@ static int mp4_has_permission(int ssid, int osid, int mask)
 	// pass the permission control to the Linux default access control
 	mask &= (MAY_READ|MAY_WRITE|MAY_APPEND|MAY_ACCESS|MAY_EXEC);
 	if (!mask)
-	    return 0;
+            goto PERMIT;
     	
     	switch(osid) {
 	    // May not be accessed by target, but may be any others
@@ -303,7 +303,7 @@ static int mp4_has_permission(int ssid, int osid, int mask)
 	    // and read by others
 	    case MP4_READ_WRITE:
 		if (ssid == MP4_TARGET_SID)
-		    if ((mask & (MAY_READ | MAY_WRITE | MAY_APPEND)) == mask)
+		    if ((mask & (MAY_READ | MAY_WRITE | MAY_APPEND | MAY_ACCESS)) == mask)
 			goto PERMIT;
 		    else
 			goto DENY;
@@ -340,13 +340,10 @@ static int mp4_has_permission(int ssid, int osid, int mask)
 			goto DENY;
 		else 
 		    goto PERMIT;
-	    // May be read/access by all
+	    // May be modified by all, so just permit
 	    case MP4_RW_DIR:
 		if (ssid == MP4_TARGET_SID)
-		    if ((mask & (MAY_READ | MAY_ACCESS)) == mask)
-			goto PERMIT;
-		    else 
-			goto DENY;
+                    goto PERMIT;
 		else 
 		    goto PERMIT;
 	}
@@ -433,7 +430,7 @@ static int mp4_inode_permission(struct inode *inode, int mask)
 
 	// Check the permissions
 	if (mp4_has_permission(ssid, osid, mask)) {
-	    pr_info("%s, DENY: ssid %d, osid %d\n", res, ssid, osid);
+	    pr_info("%s, DENY: ssid %d, osid %d, mask 0x%x\n", res, ssid, osid, mask);
 	    return -EACCES;
 	}
 
