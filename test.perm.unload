@@ -3,6 +3,7 @@ sudo setfattr -x security.mp4 /bin/touch
 sudo setfattr -x security.mp4 /usr/bin/vim
 sudo setfattr -x security.mp4 /bin/echo
 sudo setfattr -x security.mp4 /bin/bash
+sudo setfattr -x security.mp4 /bin/mkdir
 sudo setfattr -x security.mp4 /home/kechenl3/test_script.sh
 sudo setfattr -x security.mp4 /home 
 sudo setfattr -x security.mp4 /home/kechenl3
