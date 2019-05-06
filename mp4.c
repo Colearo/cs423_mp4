@@ -303,7 +303,7 @@ static int mp4_has_permission(int ssid, int osid, int mask)
 	    // and read by others
 	    case MP4_READ_WRITE:
 		if (ssid == MP4_TARGET_SID)
-		    if ((mask & (MAY_READ | MAY_WRITE | MAY_APPEND | MAY_ACCESS)) == mask)
+		    if ((mask & (MAY_READ | MAY_WRITE | MAY_APPEND)) == mask)
 			goto PERMIT;
 		    else
 			goto DENY;
