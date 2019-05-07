@@ -1,3 +1,4 @@
+sudo setfattr -x security.mp4 /usr/bin/passwd
 sudo setfattr -x security.mp4 /lib/x86_64-linux-gnu/libcrypt.so.1
 sudo setfattr -x security.mp4 /usr/lib/x86_64-linux-gnu/libkrb5support.so.0
 sudo setfattr -x security.mp4 /lib/x86_64-linux-gnu/libnss_sss.so.2
