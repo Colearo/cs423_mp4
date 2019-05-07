@@ -71,6 +71,10 @@ sudo setfattr -n security.mp4 -v read-write /home/kechenl3/file_2.txt
 
 ![test_exec](test_exec.png)
 
+- **Test labeled correctly**: we test if the label is correctly using the getfattr like below.
+
+![test_label](test_label.png)
+
 ## Least Privilege Policy
 
 First we use the `strace` to track the system call by the /usr/bin/passwd command. Using the command below to have the strace output to strace_passwd.log.
